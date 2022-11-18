@@ -1,13 +1,52 @@
 ###
 
-GET http://localhost:3000
+GET http://localhost:3000/
 
 ###
 
-GET http://localhost:3000/post 
+GET http://localhost:3000/post
+
+###
+
+POST  http://localhost:3000/post
 
 ###
 
 POST  http://localhost:3000/post 
+Content-Type: application/json
+
+{
+    "message":"This is my new message",
+    "sender": "123456"
+}
 
 ###
+
+POST  http://localhost:3000/post 
+Content-Type: application/json
+
+{
+    "message":"New message",
+    "sender": "563"
+}
+
+###
+
+GET  http://localhost:3000/post/635e856659e7e9c194cb13df
+
+
+###
+
+GET  http://localhost:3000/post/9e7e9c194cb13df
+
+
+###
+
+GET  http://localhost:3000/post?sender=563
+
+
+###
+
+
+GET  http://localhost:3000/post?sender=5613
+
