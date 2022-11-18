@@ -12,7 +12,7 @@ beforeAll(async ()=>{
 })
 
 afterAll(async ()=>{
-    await Post.remove()
+    //await Post.remove()
     mongoose.connection.close()
 })
 
@@ -54,6 +54,11 @@ describe("Posts Tests", ()=>{
         expect(response.body.sender).toEqual(newPostSender)
     })
 
+    test("get post by wrong Id fails", async()=>{
+        const response = await request(app).get('/post/1235')
+        expect(response.statusCode).toEqual(400)
+    })
+
     test("get post by sender", async()=>{
         const response = await request(app).get('/post?sender='+newPostSender)
         console.log('the sender is '+ response.body[0].sender)
@@ -61,17 +66,43 @@ describe("Posts Tests", ()=>{
         expect(response.body[0].message).toEqual(newPostMessage)
     })
 
-    test("update a post", async()=>{
-        const response = await request(app).put('/post/'+newPostId).send({message: updatePostMassage})
+    test("update post by ID", async()=>{
+        //here we update the sender also
+        let response = await request(app).put('/post/' + newPostId).send({
+            "message": updatePostMassage,
+            "sender": newPostSender
+        })
         expect(response.statusCode).toEqual(200)
         expect(response.body.message).toEqual(updatePostMassage)
         expect(response.body.sender).toEqual(newPostSender)
-        expect(response.body._id).toEqual(newPostId)
+        
+        //here we update only the message
+        response = await request(app).put('/post/'+newPostId).send({message: updatePostMassage})
+        expect(response.statusCode).toEqual(200)
+        expect(response.body.message).toEqual(updatePostMassage)
+        expect(response.body.sender).toEqual(newPostSender)
 
         console.log('the sender is '+ response.body.sender)
         console.log('the updated message is '+ response.body.message)
     })
 
+    test("update post by wrong id", async()=>{
+        //if the ID does not exist then we need to add a new post
+        let response = await request(app).put('/post/1538').send({
+            "message": updatePostMassage,
+            "sender": newPostSender
+        })
+        expect(response.statusCode).toEqual(400)
+        //create a new post
+        const newPostSenderWithNewId= '1234'
+        response = await request(app).post('/post').send({
+            "message":newPostMessage,
+            "sender": newPostSenderWithNewId
+        })
+        expect(response.statusCode).toEqual(200)
+        expect(response.body.message).toEqual(newPostMessage)
+        expect(response.body.sender).toEqual(newPostSenderWithNewId)
+    })
 })
 
 

@@ -46,9 +46,7 @@ const addNewPost = async(req,res,next)=>{
 
 const updatePostById = async(req,res,next)=>{
     try{
-        const idPostToUpdate = {_id: req.params.id}
-        const postToUpdate = await Post.findByIdAndUpdate(idPostToUpdate, {message:req.body.message},{new: true})
-     
+        const postToUpdate = await Post.findByIdAndUpdate(req.params.id, req.body,{new: true})
         res.status(200).send(postToUpdate)
     }catch(err){
         console.log("failed to update post in DB")
