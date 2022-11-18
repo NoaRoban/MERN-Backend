@@ -12,8 +12,8 @@ beforeAll(async ()=>{
 })
 
 afterAll(async ()=>{
-    //await Post.remove()
-    await mongoose.connection.close()
+    await Post.remove()
+    mongoose.connection.close()
 })
 
 describe("Posts Tests", ()=>{
