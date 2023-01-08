@@ -35,7 +35,10 @@ const register = async(req:Request,res:Response) => {
             'password': encryptedPwd
         })
         newUser = await newUser.save()
-        res.status(200).send(newUser)
+        res.status(200).send({
+            'email': email,
+            '_id': newUser._id
+        })
     }catch(err){
         sendError(res, 'fail...')
     }

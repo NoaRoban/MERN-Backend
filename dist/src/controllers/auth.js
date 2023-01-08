@@ -44,7 +44,10 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             'password': encryptedPwd
         });
         newUser = yield newUser.save();
-        res.status(200).send(newUser);
+        res.status(200).send({
+            'email': email,
+            '_id': newUser._id
+        });
     }
     catch (err) {
         sendError(res, 'fail...');

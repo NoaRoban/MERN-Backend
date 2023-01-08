@@ -1,8 +1,9 @@
 //here we writes all the logic of our post
 import Post from '../models/post_model'
-import { Request,Response } from 'express'
+import ResCtrl from '../common/ResponseCtrl'
+import ReqCtrl from '../common/RequestCtrl'
 
-const getAllPostsEvent = async() =>{
+/*const getAllPostsEvent = async(req: ReqCtrl) =>{
     console.log("")
     try{
         const posts = await Post.find()
@@ -10,63 +11,65 @@ const getAllPostsEvent = async() =>{
     }catch(err){
         return {status: 'FAIL', data: ""}
     }
-}
+}*/
 
-const getAllPosts = async(req:Request,res:Response) => {
+const getAllPosts = async(req:ReqCtrl) => {
+    console.log('the req is:   '+req)
     try{
         let posts = {}
-        if(req.query.sender == null){  
+        if(req.userId == null){  
             posts = await Post.find()
         }else{
-            posts = await Post.find({'sender':req.query.sender})
-            console.log({'sender':req.query.sender})
+            posts = await Post.find({'userId':req.userId})
+            console.log({'userId':req.userId})
         }
-        res.status(200).send(posts)
+        return new ResCtrl(posts, req.userId,null)
     }catch(err){
-        res.status(400).send({'error':'fail to get posts from DB'})
+        return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
     }
 }
 
-const getPostById = async (req:Request,res:Response)=>{
-    console.log(req.params.id)
+const getPostById = async (req:ReqCtrl)=>{
     try{
-        const posts = await Post.findById(req.params.id)
-        res.status(200).send(posts) 
+        const posts = await Post.findById(req.postId)
+        return new ResCtrl(posts, req.userId,null)
     }catch(err){
-        res.status(400).send({'error':"fail to get posts from db"})
+        return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
     }
 }
 
-const addNewPost = async(req:Request,res:Response)=>{
-    console.log(req.body)
-
+const addNewPost = async(req:ReqCtrl)=>{
     const post = new Post({//creating obj and get it from mongoose
         message: req.body.message,
-        sender: req.body.sender
+        sender: req.userId
     })
 
     try{
         const newPost = await post.save()
         console.log("save post in DB")
-        res.status(200).send(newPost)
+        return new ResCtrl(newPost, req.userId,null)
     }catch(err){
         console.log("failed to save post in DB")
-        res.status(400).send({'error':"failed to save post in DB"})
+        return new ResCtrl(null,req.userId, new ErrCtrl(400,err.message))
     }
 }
 
-const putPostById = async(req:Request,res:Response)=>{
+const putPostById = async(req:ReqCtrl)=>{
     try{
-        const postToUpdate = await Post.findByIdAndUpdate(req.params.id, req.body,{new: true})
-        res.status(200).send(postToUpdate)
+        const filter = {_id: req.postId}
+        const update = {$set: {message: req.body.message, sender: req.body.sender}}
+        const postToUpdate = await Post.findByIdAndUpdate(filter,update ,{new: true})
+        console.log('this is the new updated message: ' + postToUpdate.message)
+        console.log('this is the new updated sender: ' + postToUpdate.sender)
+        return new ResCtrl(postToUpdate, req.userId,null)
     }catch(err){
         console.log("failed to update post in DB")
-        res.status(400).send({'error':"failed to update post in DB"})
+        return new ResCtrl(null,req.userId, new ErrCtrl(400,err.message))
     }
 }
 
 export = {
-    getAllPostsEvent,
+    //getAllPostsEvent,
     getAllPosts, 
     addNewPost,
     getPostById,

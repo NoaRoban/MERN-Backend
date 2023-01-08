@@ -7,7 +7,6 @@ module.exports = (io, socket) => {
     const readHandler = (payload) => {
         // ...
     };
-    console.log('register echo handlers');
     socket.on("echo:echo", echoHandler);
     socket.on("echo:read", readHandler);
 };

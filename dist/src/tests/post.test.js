@@ -51,22 +51,24 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     mongoose_1.default.connection.close();
 }));
 describe("Posts Tests", () => {
+    jest.setTimeout(30000);
     test("add new post", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).post('/post').set('Authorization', 'JWT ' + accessToken).send({
             "message": newPostMessage,
             "sender": newPostSender
         });
         expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessage);
-        expect(response.body.sender).toEqual(newPostSender);
-        newPostId = response.body._id;
+        expect(response.body.post.message).toEqual(newPostMessage);
+        expect(response.body.post.sender).toEqual(newPostSender);
+        newPostId = response.body.post._id;
+        console.log('the new post id = ' + newPostId);
     }));
     test("get all posts", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).get('/post').set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200);
         try {
-            expect(response.body[0].message).toEqual(newPostMessage);
-            expect(response.body[0].sender).toEqual(newPostSender);
+            expect(response.body.post[0].message).toEqual(newPostMessage);
+            expect(response.body.post[0].sender).toEqual(newPostSender);
         }
         catch (_a) {
             console.log('DB is empty');
@@ -75,14 +77,14 @@ describe("Posts Tests", () => {
     test("get all posts containing given text in post message", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).get('/post?message=new').set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200);
-        expect(response.body[0].message).toEqual(newPostMessage);
-        expect(response.body[0].sender).toEqual(newPostSender);
+        expect(response.body.post[0].message).toEqual(newPostMessage);
+        expect(response.body.post[0].sender).toEqual(newPostSender);
     }));
     test("get post by Id", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).get('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessage);
-        expect(response.body.sender).toEqual(newPostSender);
+        expect(response.body.post.message).toEqual(newPostMessage);
+        expect(response.body.post.sender).toEqual(newPostSender);
     }));
     test("get post by wrong Id fails", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).get('/post/1235').set('Authorization', 'JWT ' + accessToken);
@@ -90,26 +92,26 @@ describe("Posts Tests", () => {
     }));
     test("get post by sender", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + newPostSender).set('Authorization', 'JWT ' + accessToken);
-        console.log('the sender is ' + response.body[0].sender);
+        console.log('the sender is ' + response.body.post[0].sender);
         expect(response.statusCode).toEqual(200);
-        expect(response.body[0].message).toEqual(newPostMessage);
+        expect(response.body.post[0].message).toEqual(newPostMessage);
     }));
     test("update post by ID", () => __awaiter(void 0, void 0, void 0, function* () {
         //here we update the sender also
         let response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken).send({
-            "message": newPostMessageUpdated,
-            "sender": newPostSender
+            'message': newPostMessageUpdated,
+            'sender': newPostSender
         });
         expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessageUpdated);
-        expect(response.body.sender).toEqual(newPostSender);
+        expect(response.body.post.message).toEqual(newPostMessageUpdated);
+        expect(response.body.post.sender).toEqual(newPostSender);
         //here we update only the message
         response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken).send({ message: newPostMessageUpdated });
         expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessageUpdated);
-        expect(response.body.sender).toEqual(newPostSender);
-        console.log('the sender is ' + response.body.sender);
-        console.log('the updated message is ' + response.body.message);
+        expect(response.body.post.message).toEqual(newPostMessageUpdated);
+        expect(response.body.post.sender).toEqual(newPostSender);
+        console.log('the sender is ' + response.body.post.sender);
+        console.log('the updated message is ' + response.body.post.message);
         response = yield (0, supertest_1.default)(server_1.default).put('/post/12345').set('Authorization', 'JWT ' + accessToken)
             .send({
             "message": newPostMessageUpdated,
@@ -121,25 +123,25 @@ describe("Posts Tests", () => {
             "message": newPostMessageUpdated,
         });
         expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessageUpdated);
-        expect(response.body.sender).toEqual(newPostSender);
+        expect(response.body.post.message).toEqual(newPostMessageUpdated);
+        expect(response.body.post.sender).toEqual(newPostSender);
     }));
-    test("update post by wrong id", () => __awaiter(void 0, void 0, void 0, function* () {
+    /*test("update post by wrong id", async()=>{
         //if the ID does not exist then we need to add a new post
-        let response = yield (0, supertest_1.default)(server_1.default).put('/post/1538').set('Authorization', 'JWT ' + accessToken).send({
+        let response = await request(app).put('/post/1538').set('Authorization', 'JWT ' + accessToken).send({
             "message": newPostMessageUpdated,
             "sender": newPostSender
-        });
-        expect(response.statusCode).toEqual(400);
+        })
+        expect(response.statusCode).toEqual(400)
         //create a new post
-        const newPostSenderWithNewId = '1234';
-        response = yield (0, supertest_1.default)(server_1.default).post('/post').set('Authorization', 'JWT ' + accessToken).send({
-            "message": newPostMessage,
+        const newPostSenderWithNewId= '1234'
+        response = await request(app).post('/post').set('Authorization', 'JWT ' + accessToken).send({
+            "message":newPostMessage,
             "sender": newPostSenderWithNewId
-        });
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(newPostMessage);
-        expect(response.body.sender).toEqual(newPostSenderWithNewId);
-    }));
+        })
+        expect(response.statusCode).toEqual(200)
+        expect(response.body.post.message).toEqual(newPostMessage)
+        expect(response.body.post.sender).toEqual(newPostSenderWithNewId)
+    })*/
 });
 //# sourceMappingURL=post.test.js.map

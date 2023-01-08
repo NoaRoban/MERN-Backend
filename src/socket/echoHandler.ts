@@ -12,7 +12,6 @@ export = (io:Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
     const readHandler = (payload) => {
         // ...
     }
-    console.log('register echo handlers')
     socket.on("echo:echo", echoHandler)
     socket.on("echo:read", readHandler)
 }

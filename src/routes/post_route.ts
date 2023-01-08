@@ -9,6 +9,8 @@ import express from 'express'
 const router = express.Router()
 import post from '../controllers/post.js'
 import auth from '../controllers/auth.js'
+import ReqCtrl from '../common/RequestCtrl'
+import { Request, Response } from "express";
 
 /**
 * @swagger
@@ -56,7 +58,17 @@ import auth from '../controllers/auth.js'
  *                  $ref: '#/components/schemas/Post'
  *  
  */
-router.get('/',auth.authenticateMiddleware,post.getAllPosts)
+router.get('/',auth.authenticateMiddleware, async (req: Request, res: Response) => {
+    try{
+        const response = await post.getAllPosts(ReqCtrl.fromRestRequest(req))
+        response.sendRestResponse(res)
+    }catch(err){
+        res.status(400).send({
+            status: '400',
+            message: err.message,
+        })
+    }
+})
 
 /**
  * @swagger
@@ -82,7 +94,17 @@ router.get('/',auth.authenticateMiddleware,post.getAllPosts)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.get('/:id',auth.authenticateMiddleware,post.getPostById)
+router.get('/:id',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
+    try{
+        const response = await post.getPostById(ReqCtrl.fromRestRequest(req))
+        response.sendRestResponse(res)
+    }catch(err){
+        res.status(400).send({
+            status: '400',
+            message: err.message,
+        })
+    }
+})
 
 /**
  * @swagger
@@ -107,7 +129,17 @@ router.get('/:id',auth.authenticateMiddleware,post.getPostById)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.post('/',auth.authenticateMiddleware,post.addNewPost)
+router.post('/',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
+    try{
+        const response = await post.addNewPost(ReqCtrl.fromRestRequest(req))
+        response.sendRestResponse(res)
+    }catch(err){
+        res.status(400).send({
+            status: '400',
+            message: err.message,
+        })
+    }
+})
 
 
 /**
@@ -140,6 +172,16 @@ router.post('/',auth.authenticateMiddleware,post.addNewPost)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.put('/:id',auth.authenticateMiddleware,post.putPostById)
+router.put('/:id',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
+    try{
+        const response = await post.putPostById(ReqCtrl.fromRestRequest(req))
+        response.sendRestResponse(res)
+    }catch(err){
+        res.status(400).send({
+            status: '400',
+            message: err.message,
+        })
+    }
+})
 
 export = router
