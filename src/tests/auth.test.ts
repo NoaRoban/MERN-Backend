@@ -19,8 +19,8 @@ beforeAll(async ()=>{
 })
 
 afterAll(async ()=>{
-    await Post.remove()
-    await User.remove()
+   /// await Post.remove()
+    //await User.remove()
     mongoose.connection.close()
 })
 

@@ -25,10 +25,15 @@ const db = mongoose_1.default.connection;
 db.on('error', error => { console.error(error); });
 db.once('open', () => { console.log('connected to mongo DB'); });
 app.use('/public', express_1.default.static('public'));
+app.use('/uploads/', express_1.default.static('uploads'));
 const auth_route_js_1 = __importDefault(require("./routes/auth_route.js"));
 app.use('/auth', auth_route_js_1.default);
 const post_route_js_1 = __importDefault(require("./routes/post_route.js"));
 app.use('/post', post_route_js_1.default);
+const student_route_js_1 = __importDefault(require("./routes/student_route.js"));
+app.use('/student', student_route_js_1.default);
+const file_route_js_1 = __importDefault(require("./routes/file_route.js"));
+app.use('/file', file_route_js_1.default);
 //swagger implemantation 
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));

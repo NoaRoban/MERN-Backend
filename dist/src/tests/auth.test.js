@@ -30,8 +30,8 @@ beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield user_model_1.default.remove();
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield post_model_1.default.remove();
-    yield user_model_1.default.remove();
+    /// await Post.remove()
+    //await User.remove()
     mongoose_1.default.connection.close();
 }));
 describe("Auth Tests", () => {
