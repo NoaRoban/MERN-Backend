@@ -1,6 +1,11 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const userSchema = new mongoose.Schema({
+    name:{
+        type: String,
+        required: true,
+        unique: true
+    },
     email:{
         type: String,
         required: true,
@@ -10,12 +15,19 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    ImgUrl: {
+        type: String,
+    },
+    posts: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Person' }],
+        required: true,
+        default: []
+    },    
     refresh_tokens: {
         type: [String],
     },
-    ImgUrl: {
-        type: String,
-    }
-})
+},
+{ timestamps: true
+ })
 
 export = mongoose.model('User', userSchema)

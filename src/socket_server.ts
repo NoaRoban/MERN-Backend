@@ -23,6 +23,7 @@ import jwt from 'jsonwebtoken'
 import postHandler from './socket/postHandler' 
 import echoHandler from "./socket/echoHandler";
 import chatHandler from "./socket/chatHandler";
+import userHandler from './socket/userHandler'
 
 export = (server: http.Server) => {
     const io = new Server(server)
@@ -45,7 +46,7 @@ export = (server: http.Server) => {
         echoHandler(io, socket)
         postHandler(io, socket)
         chatHandler(io, socket)
-
+        userHandler(io, socket)
         const userId = socket.data.user 
         await socket.join(userId)
     });

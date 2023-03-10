@@ -12,7 +12,9 @@
     "testPost": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/post.test.js",
     "testSocket": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/socket.test.js",
     "testStudent": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/student.test.js",
-    "testFile": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/file.test.js"
+    "testFile": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/file.test.js",
+    "testUser": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/user.test.js"
+
   },
   "author": "Noa Ben-Gigi",
   "license": "ISC",

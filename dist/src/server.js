@@ -34,6 +34,8 @@ const student_route_js_1 = __importDefault(require("./routes/student_route.js"))
 app.use('/student', student_route_js_1.default);
 const file_route_js_1 = __importDefault(require("./routes/file_route.js"));
 app.use('/file', file_route_js_1.default);
+const user_route_js_1 = __importDefault(require("./routes/user_route.js"));
+app.use('/user', user_route_js_1.default);
 //swagger implemantation 
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));

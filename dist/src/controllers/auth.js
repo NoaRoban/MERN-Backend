@@ -21,10 +21,11 @@ function sendError(res, error) {
     });
 }
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const name = req.body.name;
     const email = req.body.email;
     const password = req.body.password;
-    if (email == null || password == null) {
-        return sendError(res, 'please provide valid email and password');
+    if (email == null || password == null || name == null) {
+        return sendError(res, 'please provide valid email, password and name');
     }
     try {
         const user = yield user_model_1.default.findOne({ 'email': email });
@@ -40,11 +41,13 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const salt = yield bcrypt_1.default.genSalt(10);
         const encryptedPwd = yield bcrypt_1.default.hash(password, salt);
         let newUser = new user_model_1.default({
+            'name': name,
             'email': email,
             'password': encryptedPwd
         });
         newUser = yield newUser.save();
         res.status(200).send({
+            'name': name,
             'email': email,
             '_id': newUser._id
         });
@@ -74,13 +77,17 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!match)
             return sendError(res, 'incorrect user or password');
         const tokens = yield generateTokens(user._id.toString());
+        console.log("the user we generete for him tokens  -  " + user.id.toString());
+        console.log("access token  -  " + tokens.accessToken);
+        console.log("refresh token  -  " + tokens.refreshToken);
+        console.log("the user we generete for him tokens  -  " + user.id.toString());
         //in case the user does not have reefresh token because the tooken given in the login and not in the registration 
         if (user.refresh_tokens == null)
             user.refresh_tokens = [tokens.refreshToken];
         else
             user.refresh_tokens.push(tokens.refreshToken);
         yield user.save();
-        return res.status(200).send(tokens);
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: user._id }));
     }
     catch (err) {
         console.log("error: " + err);
@@ -98,7 +105,7 @@ const refresh = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (refreshToken == null)
         return sendError(res, 'authentication missing');
     try {
-        const user = yield jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         const userObj = yield user_model_1.default.findById(user.id);
         if (userObj == null)
             return sendError(res, ' failed validating token');
@@ -112,10 +119,10 @@ const refresh = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("refresh token: " + refreshToken);
         console.log("with token: " + tokens.refreshToken);
         yield userObj.save();
-        return res.status(200).send(tokens);
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: userObj._id }));
     }
     catch (err) {
-        return sendError(res, ' failed validating token');
+        return sendError(res, ' failed validating token ---- refresh token');
     }
 });
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -123,21 +130,21 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (refreshToken == null)
         return sendError(res, 'authentication missing');
     try {
-        const user = yield jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         const userObj = yield user_model_1.default.findById(user.id);
         if (userObj == null)
             return sendError(res, 'fail validating token');
         if (!userObj.refresh_tokens.includes(refreshToken)) {
             userObj.refresh_tokens = [];
             yield userObj.save();
-            return sendError(res, 'fail validating token');
+            return sendError(res, 'fail validating token ---- logout');
         }
         userObj.refresh_tokens.splice(userObj.refresh_tokens.indexOf(refreshToken), 1);
         yield userObj.save();
         res.status(200).send();
     }
     catch (err) {
-        return sendError(res, 'fail validating token');
+        return sendError(res, 'fail validating token ---- logout');
     }
 });
 const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -145,13 +152,12 @@ const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, voi
     if (token == null)
         return sendError(res, 'authentication missing');
     try {
-        const user = yield jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const user = jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
         req.body.userId = user.id;
-        console.log("token user: " + user);
         next();
     }
     catch (err) {
-        return sendError(res, ' failed validating token');
+        return sendError(res, ' failed validating token ---- authenticateMiddleware');
     }
 });
 module.exports = { register, login, refresh, logout, authenticateMiddleware };

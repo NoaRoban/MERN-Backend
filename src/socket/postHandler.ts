@@ -33,14 +33,14 @@ export = (io:Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
         }
     }
 
-    const putPostById = async(payload: any) => {
+    /*const putPostById = async(payload: any) => {
         try{
             const res = await postController.putPostById(new ReqCtrl(payload,socket.data.user,payload.id))
             socket.emit('post:put_post_by_id', res.body)
         }catch(err){
             socket.emit('post:put_post_by_id',{'status':'falied'})
         }
-    }
+    }*/
 
     const getPostBySender = async(payload: any) => {
         try{
@@ -54,7 +54,7 @@ export = (io:Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
     socket.on("post:get_all", getAllPosts)
     socket.on("post:get_post_by_id", getPostById)
     socket.on("post:add_new", addNewPost)
-    socket.on("post:put_post_by_id", putPostById)
+    //socket.on("post:put_post_by_id", putPostById)
     socket.on("post:get_post_by_sender", getPostBySender)
 
 }

@@ -172,7 +172,7 @@ router.post('/',auth.authenticateMiddleware,async (req: Request, res: Response)=
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.put('/:id',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
+/*router.put('/:id',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
     try{
         const response = await post.putPostById(ReqCtrl.fromRestRequest(req))
         response.sendRestResponse(res)
@@ -182,6 +182,47 @@ router.put('/:id',auth.authenticateMiddleware,async (req: Request, res: Response
             message: err.message,
         })
     }
-})
+})*/
 
+/**
+ * @swagger
+ * /post/{id}:
+ *   put:
+ *     summary: update existing post by id
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: [JWT Token]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         requiered: true
+ *         schema:
+ *           type: string
+ *           description: the updated post id    
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Post'
+ *     responses:
+ *       200:
+ *         description: the requested post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *  
+ */
+router.put('/:id', auth.authenticateMiddleware,auth.authenticateMiddleware,async (req: Request, res: Response)=>{
+    try{
+        const response = await post.updatePostById(ReqCtrl.fromRestRequest(req))
+        response.sendRestResponse(res)
+    }catch(err){
+        res.status(400).send({
+            status: '400',
+            message: err.message,
+        })
+    }
+})
 export = router

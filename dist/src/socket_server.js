@@ -34,6 +34,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const postHandler_1 = __importDefault(require("./socket/postHandler"));
 const echoHandler_1 = __importDefault(require("./socket/echoHandler"));
 const chatHandler_1 = __importDefault(require("./socket/chatHandler"));
+const userHandler_1 = __importDefault(require("./socket/userHandler"));
 module.exports = (server) => {
     const io = new socket_io_1.Server(server);
     io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -56,6 +57,7 @@ module.exports = (server) => {
         (0, echoHandler_1.default)(io, socket);
         (0, postHandler_1.default)(io, socket);
         (0, chatHandler_1.default)(io, socket);
+        (0, userHandler_1.default)(io, socket);
         const userId = socket.data.user;
         yield socket.join(userId);
     }));

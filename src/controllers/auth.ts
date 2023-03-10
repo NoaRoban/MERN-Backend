@@ -11,11 +11,12 @@ function sendError(res:Response,error:string){
 }
 
 const register = async(req:Request,res:Response) => {
+    const name= req.body.name
     const email = req.body.email
     const password = req.body.password
 
-    if(email == null || password == null){
-        return sendError(res, 'please provide valid email and password')
+    if(email == null || password == null || name == null){
+        return sendError(res, 'please provide valid email, password and name')
     }
     try{
         const user = await User.findOne({'email': email})
@@ -31,11 +32,13 @@ const register = async(req:Request,res:Response) => {
         const salt = await bcrypt.genSalt(10)
         const encryptedPwd = await bcrypt.hash(password, salt)
         let newUser = new User({
+            'name': name,
             'email': email,
             'password': encryptedPwd
         })
         newUser = await newUser.save()
         res.status(200).send({
+            'name': name,
             'email': email,
             '_id': newUser._id
         })
@@ -55,7 +58,6 @@ async function generateTokens(userId: string){
         {'id': userId},
         process.env.REFRESH_TOKEN_SECRET
     )
-
     return {'accessToken': accessToken, 'refreshToken':refreshToken}
 }
 
@@ -63,6 +65,7 @@ async function generateTokens(userId: string){
 const login = async(req:Request,res:Response) => {
     const email = req.body.email
     const password = req.body.password
+
     if(email == null || password == null) {
         return sendError(res,'please provide valid email or password')
     }
@@ -74,12 +77,19 @@ const login = async(req:Request,res:Response) => {
         if(!match) return sendError(res, 'incorrect user or password')
 
         const tokens = await generateTokens(user._id.toString())
+
+        console.log("the user we generete for him tokens  -  "+user.id.toString())
+        console.log("access token  -  "+ tokens.accessToken)
+        console.log("refresh token  -  "+ tokens.refreshToken)
+
+        console.log("the user we generete for him tokens  -  "+user.id.toString())
+
         //in case the user does not have reefresh token because the tooken given in the login and not in the registration 
         if(user.refresh_tokens == null) user.refresh_tokens=[tokens.refreshToken]
         else user.refresh_tokens.push(tokens.refreshToken)
         await user.save()
 
-        return res.status(200).send(tokens)
+        return res.status(200).send({ ...tokens, id: user._id })
     }catch(err){
         console.log("error: " + err)
         return sendError(res, 'fail checking user')
@@ -91,13 +101,15 @@ function getTokenFromRequest(req:Request): string{
     if(authHeader == null) return null
     return authHeader.split(' ')[1]  
 }
-
+type TokenInfo = {
+    id: string
+}
 const refresh = async(req:Request,res:Response) => {
    const refreshToken = getTokenFromRequest(req)
    if(refreshToken == null) return sendError(res, 'authentication missing')    
     
    try{
-        const user = await jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const user: TokenInfo = <TokenInfo>jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
         const userObj = await User.findById(user.id)
         if(userObj == null) return sendError(res, ' failed validating token')
         
@@ -113,9 +125,9 @@ const refresh = async(req:Request,res:Response) => {
         console.log("with token: " + tokens.refreshToken)
         await userObj.save()
 
-        return res.status(200).send(tokens)
+        return res.status(200).send({ ...tokens, id: userObj._id })
     }catch(err){
-        return sendError(res, ' failed validating token')
+        return sendError(res, ' failed validating token ---- refresh token')
     }
 }
 
@@ -124,34 +136,36 @@ const logout = async (req:Request ,res:Response)=>{
     if (refreshToken == null) return sendError(res,'authentication missing')
 
     try{
-        const user = await jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET)
+        const user: TokenInfo = <TokenInfo>jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
         const userObj = await User.findById(user.id)
         if (userObj == null) return sendError(res,'fail validating token')
 
         if (!userObj.refresh_tokens.includes(refreshToken)){
             userObj.refresh_tokens = []
             await userObj.save()
-            return sendError(res,'fail validating token')
+            return sendError(res,'fail validating token ---- logout')
         }
 
         userObj.refresh_tokens.splice(userObj.refresh_tokens.indexOf(refreshToken),1)
         await userObj.save()
         res.status(200).send()
     }catch(err){
-        return sendError(res,'fail validating token')
+        return sendError(res,'fail validating token ---- logout')
     }
 }
+
 
 const authenticateMiddleware = async(req:Request,res:Response, next: NextFunction) => {
     const token = getTokenFromRequest(req)
     if(token == null) return sendError(res, 'authentication missing')    
     try{
-        const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        const user: TokenInfo = <TokenInfo>jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
+
         req.body.userId = user.id
-        console.log("token user: "+user)
+
         next()
     }catch(err){
-        return sendError(res, ' failed validating token')
+        return sendError(res, ' failed validating token ---- authenticateMiddleware')
     }
 }
 

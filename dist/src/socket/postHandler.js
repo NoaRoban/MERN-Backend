@@ -41,15 +41,14 @@ module.exports = (io, socket) => {
             socket.emit('post:add_new', { 'status': 'falied' });
         }
     });
-    const putPostById = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const res = yield post_1.default.putPostById(new RequestCtrl_1.default(payload, socket.data.user, payload.id));
-            socket.emit('post:put_post_by_id', res.body);
+    /*const putPostById = async(payload: any) => {
+        try{
+            const res = await postController.putPostById(new ReqCtrl(payload,socket.data.user,payload.id))
+            socket.emit('post:put_post_by_id', res.body)
+        }catch(err){
+            socket.emit('post:put_post_by_id',{'status':'falied'})
         }
-        catch (err) {
-            socket.emit('post:put_post_by_id', { 'status': 'falied' });
-        }
-    });
+    }*/
     const getPostBySender = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const res = yield post_1.default.getAllPosts(new RequestCtrl_1.default(payload, socket.data.user, payload.sender));
@@ -63,7 +62,7 @@ module.exports = (io, socket) => {
     socket.on("post:get_all", getAllPosts);
     socket.on("post:get_post_by_id", getPostById);
     socket.on("post:add_new", addNewPost);
-    socket.on("post:put_post_by_id", putPostById);
+    //socket.on("post:put_post_by_id", putPostById)
     socket.on("post:get_post_by_sender", getPostBySender);
 };
 //# sourceMappingURL=postHandler.js.map

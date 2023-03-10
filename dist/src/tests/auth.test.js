@@ -23,6 +23,7 @@ let newPostId = ''
 const updatePostMassage = 'My name is Noa'*/
 const userEmail = "user1@gmail.com";
 const userPassword = "12345";
+const name = 'Noa';
 let accessToken = '';
 let refreshToken = '';
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,7 +43,8 @@ describe("Auth Tests", () => {
     test("Register test", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).post('/auth/register').send({
             "email": userEmail,
-            "password": userPassword
+            "password": userPassword,
+            "name": name
         });
         expect(response.statusCode).toEqual(200);
     }));

@@ -10,6 +10,7 @@ const updatePostMassage = 'My name is Noa'*/
 
 const userEmail= "user1@gmail.com"
 const userPassword = "12345"
+const name = 'Noa'
 let accessToken = ''
 let refreshToken = ''
 
@@ -33,7 +34,8 @@ describe("Auth Tests", ()=>{
     test("Register test", async()=>{
         const response = await request(app).post('/auth/register').send({
             "email": userEmail,
-            "password": userPassword
+            "password": userPassword,
+            "name":name
         })
         expect(response.statusCode).toEqual(200)
     })

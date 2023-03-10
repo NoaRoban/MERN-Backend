@@ -2,7 +2,7 @@
 import Post from '../models/post_model'
 import ResCtrl from '../common/ResponseCtrl'
 import ReqCtrl from '../common/RequestCtrl'
-
+import User from '../models/user_model'
 /*const getAllPostsEvent = async(req: ReqCtrl) =>{
     console.log("")
     try{
@@ -38,23 +38,49 @@ const getPostById = async (req:ReqCtrl)=>{
     }
 }
 
-const addNewPost = async(req:ReqCtrl)=>{
-    const post = new Post({//creating obj and get it from mongoose
-        message: req.body.message,
-        sender: req.userId
-    })
-
+const getAllPostByUserId = async (req:ReqCtrl)=>{
     try{
-        const newPost = await post.save()
-        console.log("save post in DB")
-        return new ResCtrl(newPost, req.userId,null)
+        const {userId} = req.body;
+        const user = await User.findById(userId)
+        const postsByUserId = user.posts
+        const ids = await Post.findById(req.postId)
+        const posts = await Post.find({
+            _id: { $in: ids }
+        });
+        return new ResCtrl(posts, req.userId,null)
     }catch(err){
-        console.log("failed to save post in DB")
-        return new ResCtrl(null,req.userId, new ErrCtrl(400,err.message))
+        return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
     }
 }
 
-const putPostById = async(req:ReqCtrl)=>{
+const addNewPost = async(req:ReqCtrl)=>{
+    try{
+        const { userId, message, imageUrl } = req.body;
+        const currentUser = await User.findById(userId);
+        if (!currentUser) {
+            return new ResCtrl(null, req.userId, new ErrCtrl(400,'Failed to create post - user id does not exists' ))
+        }
+        const post = new Post({
+            message,
+            imageUrl,
+            userId: currentUser._id
+        });
+
+        const userPosts = currentUser.posts || [];
+
+        userPosts.push(post.id);
+        currentUser.posts = userPosts;
+
+        const [newPost] = await Promise.all([post.save(), currentUser.save()]);
+        return new ResCtrl(newPost, req.userId,null)
+    } catch (err) {
+        console.log(err)
+        return new ResCtrl(null, req.userId, new ErrCtrl(400,'fail adding new post to db' + err))
+
+    }
+}
+
+/*const putPostById = async(req:ReqCtrl)=>{
     try{
         const filter = {_id: req.postId}
         const update = {$set: {message: req.body.message, sender: req.body.sender}}
@@ -66,6 +92,33 @@ const putPostById = async(req:ReqCtrl)=>{
         console.log("failed to update post in DB")
         return new ResCtrl(null,req.userId, new ErrCtrl(400,err.message))
     }
+}*/
+
+const updatePostById = async (req: ReqCtrl) => {
+    try {
+        const { imageUrl, message, userId } = req.body;
+        const postId = req.postId;
+
+        const post = await Post.findById(postId);
+        if (userId !== post.userId.toString()) {
+            return new ResCtrl(null, req.userId,new ErrCtrl(400,"Error, user is not authorized to change this post."))
+        }
+
+        post.$set({
+            image: imageUrl || post.imageUrl,
+            text: message || post.message,
+        });
+
+       // await post.save();
+        const filter = {_id: req.postId}
+        const update = {$set: {message: message, sender: imageUrl}}
+        const postToUpdate = await Post.findByIdAndUpdate(filter,update ,{new: true})
+        console.log('the updated post: ' + postToUpdate.message + '    '+ postToUpdate.imageUrl)
+        return new ResCtrl(postToUpdate, req.userId,null)
+
+    } catch (err) {
+        return new ResCtrl(null, req.userId,new ErrCtrl(400,"Error, user faild to update this post." +err))
+    }
 }
 
 export = {
@@ -73,5 +126,7 @@ export = {
     getAllPosts, 
     addNewPost,
     getPostById,
-    putPostById
+    updatePostById,
+    //putPostById,
+    getAllPostByUserId
 }

@@ -1,6 +1,6 @@
 import server from "../app"
 import mongoose from "mongoose"
-import Client, { Socket } from "socket.io-client";
+import Client, { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 
 import request from "supertest"
@@ -9,9 +9,11 @@ import User from '../models/user_model'
 
 const userEmail = "user1@gmail.com"
 const userPassword = "12345"
+const userName = 'Name1'
 
 const userEmail2 = "user2@gmail.com"
 const userPassword2 = "12345"
+const userName2 = 'Name2'
 
 let postId = null;
 const messageFromClient1 = 'This is a message from client1'
@@ -36,10 +38,11 @@ function clientSocketConnect(clientSocket): Promise<string>{
     })
 }
 
-const connectUser = async (userEmail, userPassword)=>{
+const connectUser = async (userEmail, userPassword, userName)=>{
     const response1= await request(server).post('/auth/register').send({
         "email": userEmail,
-        "password": userPassword
+        "password": userPassword,
+        "name" : userName
     })
     const userId = response1.body._id
     const response = await request(server).post('/auth/login').send({
@@ -49,23 +52,25 @@ const connectUser = async (userEmail, userPassword)=>{
     const token= response.body.accessToken
 
     //after we have the access token we can to create the client
-    const socket = Client('http://localhost:' + process.env.PORT, {
+    /*const socket = Client('http://localhost:' + process.env.PORT, {
         auth: {
             token: 'barrer ' + token
         }
-    })
+    })*/
+    const socket = io(server)
+    socket.close()
     await clientSocketConnect(socket)
     const client = {socket: socket,accessToken: token, id: userId}
     return client
 }
 
-describe("my awesome project", () => {
+describe("Socket tests", () => {
     jest.setTimeout(35000)
     beforeAll(async() => {
         await Post.remove()
         await User.remove()
-        client1 = await connectUser(userEmail, userPassword)
-        client2 = await connectUser(userEmail2, userPassword2)
+        client1 = await connectUser(userEmail, userPassword ,userName)
+        client2 = await connectUser(userEmail2, userPassword2,userName2)
     });
     
     afterAll(() => {

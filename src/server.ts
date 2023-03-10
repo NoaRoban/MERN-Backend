@@ -39,6 +39,9 @@ app.use('/student', studentRouter)
 import fileRouter from './routes/file_route.js'
 app.use('/file', fileRouter)
 
+import userRouter from './routes/user_route.js'
+app.use('/user', userRouter);
+
 //swagger implemantation 
 import swaggerUI from "swagger-ui-express"
 import swaggerJsDoc from "swagger-jsdoc"
