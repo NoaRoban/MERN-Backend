@@ -3,6 +3,8 @@ import Post from '../models/post_model'
 import ResCtrl from '../common/ResponseCtrl'
 import ReqCtrl from '../common/RequestCtrl'
 import User from '../models/user_model'
+import { Request ,Response } from "express";
+
 /*const getAllPostsEvent = async(req: ReqCtrl) =>{
     console.log("")
     try{
@@ -13,19 +15,19 @@ import User from '../models/user_model'
     }
 }*/
 
-const getAllPosts = async(req:ReqCtrl) => {
-    console.log('the req is:   '+req)
-    try{
-        let posts = {}
-        if(req.userId == null){  
+const getAllPosts = async(req: Request, res: Response) => {
+    let posts = {}
+    try {
+        if (req.body == null) {
             posts = await Post.find()
-        }else{
-            posts = await Post.find({'userId':req.userId})
-            console.log({'userId':req.userId})
+            res.status(200).send(posts)
         }
-        return new ResCtrl(posts, req.userId,null)
-    }catch(err){
-        return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
+        else {
+            posts = await Post.find({ 'userId': req.body.userId })
+            res.status(200).send(posts)
+        }
+    } catch (err) {
+        res.status(400).send({ 'err': "failed to get all posts from DB" })
     }
 }
 
@@ -53,31 +55,40 @@ const getAllPostByUserId = async (req:ReqCtrl)=>{
     }
 }
 
-const addNewPost = async(req:ReqCtrl)=>{
-    try{
-        const { userId, message, imageUrl } = req.body;
-        const currentUser = await User.findById(userId);
+const addNewPost = async(req:Request,res: Response)=>{
+    const userId = req.body.userId
+    const text = req.body.text;
+    const imageUrl = req.body.imageUrl;
+    console.log('userId: '+userId)
+    console.log('text: '+text)
+    console.log('imageUrl: '+imageUrl)
+
+    
+    const post = new Post({
+        text,
+        imageUrl,
+        userId: userId
+    });
+    try{    
+        const currentUser = await User.findOne({_id: userId});
+        console.log('current user: '+currentUser.id)
         if (!currentUser) {
-            return new ResCtrl(null, req.userId, new ErrCtrl(400,'Failed to create post - user id does not exists' ))
+            res.status(400).send({ 'error':'Failed to create post - user id does not exists'} )
         }
-        const post = new Post({
-            message,
-            imageUrl,
-            userId: currentUser._id
-        });
-
         const userPosts = currentUser.posts || [];
-
         userPosts.push(post.id);
         currentUser.posts = userPosts;
-
         const [newPost] = await Promise.all([post.save(), currentUser.save()]);
-        return new ResCtrl(newPost, req.userId,null)
+        //return new ResCtrl(newPost, userId,null)
+        res.status(200).send(newPost)
     } catch (err) {
         console.log(err)
-        return new ResCtrl(null, req.userId, new ErrCtrl(400,'fail adding new post to db' + err))
+        //return new ResCtrl(null, userId, new ErrCtrl(400,'fail adding new post to db' + err))
+        res.status(400).send({ 'error': 'fail adding new post to db' })
 
     }
+
+    
 }
 
 /*const putPostById = async(req:ReqCtrl)=>{
@@ -96,7 +107,7 @@ const addNewPost = async(req:ReqCtrl)=>{
 
 const updatePostById = async (req: ReqCtrl) => {
     try {
-        const { imageUrl, message, userId } = req.body;
+        const { imageUrl, text, userId } = req.body;
         const postId = req.postId;
 
         const post = await Post.findById(postId);
@@ -106,14 +117,14 @@ const updatePostById = async (req: ReqCtrl) => {
 
         post.$set({
             image: imageUrl || post.imageUrl,
-            text: message || post.message,
+            text: text || post.text,
         });
 
        // await post.save();
         const filter = {_id: req.postId}
-        const update = {$set: {message: message, sender: imageUrl}}
+        const update = {$set: {text: text, sender: imageUrl}}
         const postToUpdate = await Post.findByIdAndUpdate(filter,update ,{new: true})
-        console.log('the updated post: ' + postToUpdate.message + '    '+ postToUpdate.imageUrl)
+        console.log('the updated post: ' + postToUpdate.text + '    '+ postToUpdate.imageUrl)
         return new ResCtrl(postToUpdate, req.userId,null)
 
     } catch (err) {

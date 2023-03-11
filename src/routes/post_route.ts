@@ -58,17 +58,7 @@ import { Request, Response } from "express";
  *                  $ref: '#/components/schemas/Post'
  *  
  */
-router.get('/',auth.authenticateMiddleware, async (req: Request, res: Response) => {
-    try{
-        const response = await post.getAllPosts(ReqCtrl.fromRestRequest(req))
-        response.sendRestResponse(res)
-    }catch(err){
-        res.status(400).send({
-            status: '400',
-            message: err.message,
-        })
-    }
-})
+router.get('/', post.getAllPosts)
 
 /**
  * @swagger
@@ -129,17 +119,8 @@ router.get('/:id',auth.authenticateMiddleware,async (req: Request, res: Response
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.post('/',auth.authenticateMiddleware,async (req: Request, res: Response)=>{
-    try{
-        const response = await post.addNewPost(ReqCtrl.fromRestRequest(req))
-        response.sendRestResponse(res)
-    }catch(err){
-        res.status(400).send({
-            status: '400',
-            message: err.message,
-        })
-    }
-})
+router.post('/', post.addNewPost)
+
 
 
 /**

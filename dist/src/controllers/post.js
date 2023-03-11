@@ -24,21 +24,20 @@ const user_model_1 = __importDefault(require("../models/user_model"));
         return {status: 'FAIL', data: ""}
     }
 }*/
-const getAllPosts = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('the req is:   ' + req);
+const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let posts = {};
     try {
-        let posts = {};
-        if (req.userId == null) {
+        if (req.body == null) {
             posts = yield post_model_1.default.find();
+            res.status(200).send(posts);
         }
         else {
-            posts = yield post_model_1.default.find({ 'userId': req.userId });
-            console.log({ 'userId': req.userId });
+            posts = yield post_model_1.default.find({ 'userId': req.body.userId });
+            res.status(200).send(posts);
         }
-        return new ResponseCtrl_1.default(posts, req.userId, null);
     }
     catch (err) {
-        return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, err.message));
+        res.status(400).send({ 'err': "failed to get all posts from DB" });
     }
 });
 const getPostById = (req) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,27 +64,35 @@ const getAllPostByUserId = (req) => __awaiter(void 0, void 0, void 0, function* 
         return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, err.message));
     }
 });
-const addNewPost = (req) => __awaiter(void 0, void 0, void 0, function* () {
+const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.body.userId;
+    const text = req.body.text;
+    const imageUrl = req.body.imageUrl;
+    console.log('userId: ' + req.body.id);
+    console.log('text: ' + text);
+    console.log('imageUrl: ' + imageUrl);
+    const post = new post_model_1.default({
+        text,
+        imageUrl,
+        userId: userId
+    });
     try {
-        const { userId, message, imageUrl } = req.body;
-        const currentUser = yield user_model_1.default.findById(userId);
+        const currentUser = yield user_model_1.default.findOne({ _id: userId });
+        console.log('current user: ' + currentUser.id);
         if (!currentUser) {
-            return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, 'Failed to create post - user id does not exists'));
+            res.status(400).send({ 'error': 'Failed to create post - user id does not exists' });
         }
-        const post = new post_model_1.default({
-            message,
-            imageUrl,
-            userId: currentUser._id
-        });
         const userPosts = currentUser.posts || [];
         userPosts.push(post.id);
         currentUser.posts = userPosts;
         const [newPost] = yield Promise.all([post.save(), currentUser.save()]);
-        return new ResponseCtrl_1.default(newPost, req.userId, null);
+        //return new ResCtrl(newPost, userId,null)
+        res.status(200).send(newPost);
     }
     catch (err) {
         console.log(err);
-        return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, 'fail adding new post to db' + err));
+        //return new ResCtrl(null, userId, new ErrCtrl(400,'fail adding new post to db' + err))
+        res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
 /*const putPostById = async(req:ReqCtrl)=>{
@@ -103,7 +110,7 @@ const addNewPost = (req) => __awaiter(void 0, void 0, void 0, function* () {
 }*/
 const updatePostById = (req) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { imageUrl, message, userId } = req.body;
+        const { imageUrl, text, userId } = req.body;
         const postId = req.postId;
         const post = yield post_model_1.default.findById(postId);
         if (userId !== post.userId.toString()) {
@@ -111,13 +118,13 @@ const updatePostById = (req) => __awaiter(void 0, void 0, void 0, function* () {
         }
         post.$set({
             image: imageUrl || post.imageUrl,
-            text: message || post.message,
+            text: text || post.text,
         });
         // await post.save();
         const filter = { _id: req.postId };
-        const update = { $set: { message: message, sender: imageUrl } };
+        const update = { $set: { text: text, sender: imageUrl } };
         const postToUpdate = yield post_model_1.default.findByIdAndUpdate(filter, update, { new: true });
-        console.log('the updated post: ' + postToUpdate.message + '    ' + postToUpdate.imageUrl);
+        console.log('the updated post: ' + postToUpdate.text + '    ' + postToUpdate.imageUrl);
         return new ResponseCtrl_1.default(postToUpdate, req.userId, null);
     }
     catch (err) {

@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema({
         required: false,
         default: ''
     },
-    message: {
+    text: {
         type: String,
         required: true,
     },

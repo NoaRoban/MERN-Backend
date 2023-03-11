@@ -14,15 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const post_1 = __importDefault(require("../controllers/post"));
 const RequestCtrl_1 = __importDefault(require("../common/RequestCtrl"));
 module.exports = (io, socket) => {
-    const getAllPosts = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const res = yield post_1.default.getAllPosts(new RequestCtrl_1.default(payload, socket.data.user, null));
-            socket.emit('post:get_all', res.body);
+    /*const getAllPosts = async(payload: any) => {// get all post handler
+        try{
+            const res = await postController.getAllPosts(new ReqCtrl(payload, socket.data.user, null ),new Response)
+            socket.emit('post:get_all', res.body)
+        }catch(err){
+            socket.emit('post:get_all',{'status':'falied'})
         }
-        catch (err) {
-            socket.emit('post:get_all', { 'status': 'falied' });
-        }
-    });
+    }*/
     const getPostById = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const res = yield post_1.default.getPostById(new RequestCtrl_1.default(payload, socket.data.user, payload.id));
@@ -34,8 +33,8 @@ module.exports = (io, socket) => {
     });
     const addNewPost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const res = yield post_1.default.addNewPost(new RequestCtrl_1.default(payload, socket.data.user, null));
-            socket.emit('post:add_new', res.body);
+            //const res = await postController.addNewPost(new ReqCtrl(payload,socket.data.user,null))
+            //socket.emit('post:add_new', res.body)
         }
         catch (err) {
             socket.emit('post:add_new', { 'status': 'falied' });
@@ -51,17 +50,17 @@ module.exports = (io, socket) => {
     }*/
     const getPostBySender = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const res = yield post_1.default.getAllPosts(new RequestCtrl_1.default(payload, socket.data.user, payload.sender));
-            socket.emit('post:get_post_by_sender', res.body);
+            //const res = await postController.getAllPosts(new ReqCtrl(payload,socket.data.user,payload.sender))
+            //socket.emit('post:get_post_by_sender', res.body)
         }
         catch (err) {
             socket.emit('post:get_post_by_sender', { 'status': 'falied' });
         }
     });
     console.log('register echo handlers');
-    socket.on("post:get_all", getAllPosts);
+    //socket.on("post:get_all", getAllPosts)
     socket.on("post:get_post_by_id", getPostById);
-    socket.on("post:add_new", addNewPost);
+    //socket.on("post:add_new", addNewPost)
     //socket.on("post:put_post_by_id", putPostById)
     socket.on("post:get_post_by_sender", getPostBySender);
 };

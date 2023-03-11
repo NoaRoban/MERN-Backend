@@ -34,7 +34,7 @@ const postSchema = new mongoose_1.default.Schema({
         required: false,
         default: ''
     },
-    message: {
+    text: {
         type: String,
         required: true,
     },

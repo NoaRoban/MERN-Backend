@@ -67,18 +67,7 @@ const RequestCtrl_1 = __importDefault(require("../common/RequestCtrl"));
  *                  $ref: '#/components/schemas/Post'
  *
  */
-router.get('/', auth_js_1.default.authenticateMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield post_js_1.default.getAllPosts(RequestCtrl_1.default.fromRestRequest(req));
-        response.sendRestResponse(res);
-    }
-    catch (err) {
-        res.status(400).send({
-            status: '400',
-            message: err.message,
-        });
-    }
-}));
+router.get('/', post_js_1.default.getAllPosts);
 /**
  * @swagger
  * /post/{id}:
@@ -138,18 +127,7 @@ router.get('/:id', auth_js_1.default.authenticateMiddleware, (req, res) => __awa
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.post('/', auth_js_1.default.authenticateMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield post_js_1.default.addNewPost(RequestCtrl_1.default.fromRestRequest(req));
-        response.sendRestResponse(res);
-    }
-    catch (err) {
-        res.status(400).send({
-            status: '400',
-            message: err.message,
-        });
-    }
-}));
+router.post('/', post_js_1.default.addNewPost);
 /**
  * @swagger
  * /post/{id}:
