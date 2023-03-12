@@ -38,8 +38,9 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
-    ImgUrl: {
+    imgUrl: {
         type: String,
+        default: ''
     },
     posts: {
         type: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Person' }],

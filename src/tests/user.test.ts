@@ -30,14 +30,13 @@ beforeAll(async () => {
 async function loginUser() {
     const response = await request(app).post('/auth/login').send({
         "email": userEmail,
-        "password": userPassword
+        "password": userPassword,
     })
 
     accessToken = response.body.accessToken;
     reefreshToken = response.body.reefreshToken
     console.log('acc tkn' + accessToken)
     console.log('ref tkn' + reefreshToken)
-
 }
 
 beforeEach(async () => {
@@ -61,7 +60,8 @@ describe("User Tests", () => {
     test("Edit my information by ID", async () => {
         let response = await request(app).post(`/user/edit-user/${userId}`).set('Authorization', 'JWT ' + accessToken)
             .send({
-                "name": userNewName
+                "name": userNewName,
+                'imgUrl': '/uploads/2023_3_2_17_45_48.jpg'
             });
 
         expect(response.statusCode).toEqual(200);

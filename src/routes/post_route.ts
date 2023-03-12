@@ -206,4 +206,32 @@ router.put('/:id', auth.authenticateMiddleware,auth.authenticateMiddleware,async
         })
     }
 })
+
+/**
+ * @swagger
+ * /post:
+ *   get:
+ *     summary: get all user postposts
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: [JWT Token]
+ *     parameters:
+ *       - in: query
+ *         name: sender
+ *         schema:
+ *           type: string
+ *           description: filter the posts according to the given sender id
+ *     responses:
+ *       200:
+ *         description: the list of posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: 
+ *                  $ref: '#/components/schemas/Post'
+ *  
+ */
+router.get('/', post.getAllUserPosts)
+
 export = router

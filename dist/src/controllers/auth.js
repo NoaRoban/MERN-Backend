@@ -20,6 +20,7 @@ function sendError(res, error) {
         'err': error
     });
 }
+const defaultPass = '123456';
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const email = req.body.email;
@@ -63,6 +64,33 @@ function generateTokens(userId) {
         return { 'accessToken': accessToken, 'refreshToken': refreshToken };
     });
 }
+const googleSignUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, name, avatar } = req.body;
+        let user = yield user_model_1.default.findOne({ email });
+        if (!user) {
+            // create a user
+            const salt = yield bcrypt_1.default.genSalt(10);
+            const encryptedPwd = yield bcrypt_1.default.hash(defaultPass, salt);
+            user = new user_model_1.default({
+                email,
+                password: encryptedPwd,
+                name,
+                avatarUrl: avatar
+            });
+        }
+        const tokens = yield generateTokens(user._id.toString());
+        if (user.refresh_tokens == null)
+            user.refresh_tokens = [tokens.refreshToken];
+        else
+            user.refresh_tokens.push(tokens.refreshToken);
+        yield user.save();
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: user._id }));
+    }
+    catch (err) {
+        return sendError(res, err + 'Failed to authenticate google user');
+    }
+});
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const email = req.body.email;
     const password = req.body.password;
@@ -160,5 +188,5 @@ const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, voi
         return sendError(res, ' failed validating token ---- authenticateMiddleware');
     }
 });
-module.exports = { register, login, refresh, logout, authenticateMiddleware };
+module.exports = { register, login, refresh, logout, authenticateMiddleware, googleSignUser };
 //# sourceMappingURL=auth.js.map

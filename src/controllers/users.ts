@@ -28,8 +28,9 @@ const getUser = async (req: Request, res: Response) => {
 
         if (user.length > 0) {
             //console.log("we found the user: " + user)
-            console.log("we found the user[0]: " + user[0])
-            res.status(200).send(user[0]);
+            //const data = JSON.stringify(user[0])
+            console.log("we found the user: " + user[0])
+            res.status(200).send(user[0] );
         } else {
             res.status(404).send({ err: "Couldnt find this user id" });
         }
@@ -38,18 +39,28 @@ const getUser = async (req: Request, res: Response) => {
         res.status(400).send({ err: err.message })
     }
 }
-
-
+/*const getUserDetails = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    console.log("the id: "+ id)
+    try{
+        const user = await Users.findById(id)
+        if(user){
+            res.status(200).send( user );
+        }
+    }catch(err){
+        res.status(400).send({ err: err.message })
+    }
+}*/
 const editUserInfo = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const { name, avatarUrl } = req.body;
-
+    const { name, imageUrl } = req.body;
+    console.log('edit user infooooo' + id)
     try {
         const user = await Users.findByIdAndUpdate(id, {
             $set: {
-                name,
-                avatarUrl,
+                name:name,
+                imgUrl: imageUrl
             }
         });
 
@@ -62,4 +73,4 @@ const editUserInfo = async (req: Request, res: Response) => {
 }
 
 
-export = { editUserInfo, getUser };
+export = { editUserInfo, getUser};//,getUserDetails 

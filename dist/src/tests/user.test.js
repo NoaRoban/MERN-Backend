@@ -39,7 +39,7 @@ function loginUser() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(server_1.default).post('/auth/login').send({
             "email": userEmail,
-            "password": userPassword
+            "password": userPassword,
         });
         accessToken = response.body.accessToken;
         reefreshToken = response.body.reefreshToken;
@@ -64,7 +64,8 @@ describe("User Tests", () => {
     test("Edit my information by ID", () => __awaiter(void 0, void 0, void 0, function* () {
         let response = yield (0, supertest_1.default)(server_1.default).post(`/user/edit-user/${userId}`).set('Authorization', 'JWT ' + accessToken)
             .send({
-            "name": userNewName
+            "name": userNewName,
+            'imgUrl': '/uploads/2023_3_2_17_45_48.jpg'
         });
         expect(response.statusCode).toEqual(200);
         expect(response.body.msg).toEqual('Update succes');

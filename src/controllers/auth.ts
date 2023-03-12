@@ -9,7 +9,7 @@ function sendError(res:Response,error:string){
         'err':error
     })
 }
-
+const defaultPass = '123456'
 const register = async(req:Request,res:Response) => {
     const name= req.body.name
     const email = req.body.email
@@ -61,7 +61,38 @@ async function generateTokens(userId: string){
     return {'accessToken': accessToken, 'refreshToken':refreshToken}
 }
 
+const googleSignUser = async (req: Request, res: Response) => {
+    try {
+        const { email, name, avatar } = req.body;
 
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // create a user
+            const salt = await bcrypt.genSalt(10)
+            const encryptedPwd = await bcrypt.hash(defaultPass, salt);
+
+            user = new User({
+                email,
+                password: encryptedPwd,
+                name,
+                avatarUrl: avatar
+            });
+        }
+
+        const tokens = await generateTokens(user._id.toString())
+
+        if (user.refresh_tokens == null) user.refresh_tokens = [tokens.refreshToken]
+        else user.refresh_tokens.push(tokens.refreshToken)
+
+        await user.save()
+
+        return res.status(200).send({ ...tokens, id: user._id });
+    } catch (err) {
+        return sendError(res, err + 'Failed to authenticate google user');
+
+    }
+}
 const login = async(req:Request,res:Response) => {
     const email = req.body.email
     const password = req.body.password
@@ -170,4 +201,4 @@ const authenticateMiddleware = async(req:Request,res:Response, next: NextFunctio
 }
 
 
-export = {register, login, refresh, logout, authenticateMiddleware}
+export = {register, login, refresh, logout, authenticateMiddleware,googleSignUser}

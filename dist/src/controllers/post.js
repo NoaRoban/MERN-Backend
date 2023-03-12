@@ -27,17 +27,49 @@ const user_model_1 = __importDefault(require("../models/user_model"));
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let posts = {};
     try {
-        if (req.body == null) {
-            posts = yield post_model_1.default.find();
-            res.status(200).send(posts);
-        }
+        // if (req.body == null) {
+        posts = yield post_model_1.default.find();
+        res.status(200).send(posts);
+        /*}
         else {
-            posts = yield post_model_1.default.find({ 'userId': req.body.userId });
-            res.status(200).send(posts);
-        }
+
+        console.log('userIddddddddddddddddddddd'+req.body.userId)
+            posts = await Post.find({ 'userId': req.body.userId })
+            res.status(200).send(posts)
+        }*/
     }
     catch (err) {
         res.status(400).send({ 'err': "failed to get all posts from DB" });
+    }
+});
+const getAllUserPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const posts = yield post_model_1.default.aggregate([
+            { $unwind: "$userId" },
+            {
+                $lookup: {
+                    from: user_model_1.default.collection.name,
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "owner"
+                }
+            },
+            { $unwind: '$owner' },
+            {
+                $project: {
+                    "owner.password": 0,
+                    "owner.posts": 0,
+                    "owner.createdAt": 0,
+                    "owner.refresh_tokens": 0,
+                    "owner.updatedAt": 0,
+                    "owner.__v": 0,
+                }
+            }
+        ]);
+        res.status(200).send(posts);
+    }
+    catch (err) {
+        res.status(400).send({ err: "fail to get posts from db" });
     }
 });
 const getPostById = (req) => __awaiter(void 0, void 0, void 0, function* () {
@@ -49,26 +81,25 @@ const getPostById = (req) => __awaiter(void 0, void 0, void 0, function* () {
         return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, err.message));
     }
 });
-const getAllPostByUserId = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.body;
-        const user = yield user_model_1.default.findById(userId);
-        const postsByUserId = user.posts;
-        const ids = yield post_model_1.default.findById(req.postId);
-        const posts = yield post_model_1.default.find({
+/*const getAllPostByUserId = async (req:ReqCtrl)=>{
+    try{
+        const {userId} = req.body;
+        const user = await User.findById(userId)
+        const postsByUserId = user.posts
+        const ids = await Post.findById(req.postId)
+        const posts = await Post.find({
             _id: { $in: ids }
         });
-        return new ResponseCtrl_1.default(posts, req.userId, null);
+        return new ResCtrl(posts, req.userId,null)
+    }catch(err){
+        return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
     }
-    catch (err) {
-        return new ResponseCtrl_1.default(null, req.userId, new ErrCtrl(400, err.message));
-    }
-});
+}*/
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.body.userId;
     const text = req.body.text;
     const imageUrl = req.body.imageUrl;
-    console.log('userId: ' + req.body.id);
+    console.log('userId: ' + userId);
     console.log('text: ' + text);
     console.log('imageUrl: ' + imageUrl);
     const post = new post_model_1.default({
@@ -138,6 +169,6 @@ module.exports = {
     getPostById,
     updatePostById,
     //putPostById,
-    getAllPostByUserId
+    getAllUserPosts
 };
 //# sourceMappingURL=post.js.map

@@ -18,18 +18,53 @@ import { Request ,Response } from "express";
 const getAllPosts = async(req: Request, res: Response) => {
     let posts = {}
     try {
-        if (req.body == null) {
+       // if (req.body == null) {
             posts = await Post.find()
             res.status(200).send(posts)
-        }
+        /*}
         else {
+
+        console.log('userIddddddddddddddddddddd'+req.body.userId)
             posts = await Post.find({ 'userId': req.body.userId })
             res.status(200).send(posts)
-        }
+        }*/
     } catch (err) {
         res.status(400).send({ 'err': "failed to get all posts from DB" })
     }
 }
+
+const getAllUserPosts = async (req: Request, res: Response) => {
+    try {
+        const posts = await Post.aggregate(
+            [
+                { $unwind: "$userId" },
+                {
+                    $lookup: {
+                        from: User.collection.name,
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "owner"
+                    }
+                },
+                { $unwind: '$owner' },
+                {
+                    $project: {
+                        "owner.password": 0,
+                        "owner.posts": 0,
+                        "owner.createdAt": 0,
+                        "owner.refresh_tokens": 0,
+                        "owner.updatedAt": 0,
+                        "owner.__v": 0,
+                    }
+                }
+            ]
+        );
+        res.status(200).send(posts)
+    } catch (err) {
+        res.status(400).send({ err: "fail to get posts from db" })
+    }
+}
+
 
 const getPostById = async (req:ReqCtrl)=>{
     try{
@@ -40,7 +75,7 @@ const getPostById = async (req:ReqCtrl)=>{
     }
 }
 
-const getAllPostByUserId = async (req:ReqCtrl)=>{
+/*const getAllPostByUserId = async (req:ReqCtrl)=>{
     try{
         const {userId} = req.body;
         const user = await User.findById(userId)
@@ -53,7 +88,7 @@ const getAllPostByUserId = async (req:ReqCtrl)=>{
     }catch(err){
         return new ResCtrl(null, req.userId, new ErrCtrl(400, err.message))
     }
-}
+}*/
 
 const addNewPost = async(req:Request,res: Response)=>{
     const userId = req.body.userId
@@ -139,5 +174,5 @@ export = {
     getPostById,
     updatePostById,
     //putPostById,
-    getAllPostByUserId
+    getAllUserPosts
 }

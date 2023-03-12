@@ -37,7 +37,8 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         ]);
         if (user.length > 0) {
             //console.log("we found the user: " + user)
-            console.log("we found the user[0]: " + user[0]);
+            //const data = JSON.stringify(user[0])
+            console.log("we found the user: " + user[0]);
             res.status(200).send(user[0]);
         }
         else {
@@ -48,14 +49,27 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(400).send({ err: err.message });
     }
 });
+/*const getUserDetails = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    console.log("the id: "+ id)
+    try{
+        const user = await Users.findById(id)
+        if(user){
+            res.status(200).send( user );
+        }
+    }catch(err){
+        res.status(400).send({ err: err.message })
+    }
+}*/
 const editUserInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { name, avatarUrl } = req.body;
+    const { name, imageUrl } = req.body;
+    console.log('edit user infooooo' + id);
     try {
         const user = yield user_model_1.default.findByIdAndUpdate(id, {
             $set: {
-                name,
-                avatarUrl,
+                name: name,
+                imgUrl: imageUrl
             }
         });
         yield user.save();
