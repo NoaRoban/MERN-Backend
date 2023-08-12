@@ -11,7 +11,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const multer_1 = __importDefault(require("multer"));
-const base = "http://192.168.1.217:3000/";
+const base = "http://172.20.10.3:3000/";
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads');
