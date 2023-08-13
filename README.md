@@ -7,8 +7,9 @@
 <img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/dd6c00bd-942f-4cc6-b82d-f6ba45c1c5c1" alt="project-screenshot" width="180" height="350/">
 <br>
 <p>Login screen:</p>
-<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/845b18cd-ea98-4a64-acf6-07f00c6581fe" alt="project-screenshot" width="180" height="350/">
+<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/4a19e7f9-15ca-4152-bb15-0e7cd6c87ae0" alt="project-screenshot" width="180" height="350/">
 <br>
+
 <p>Register screen:</p>
 <img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/3ad209fc-a525-45b2-81f1-f13380749efe" alt="project-screenshot" width="180" height="350/">
 <br>
