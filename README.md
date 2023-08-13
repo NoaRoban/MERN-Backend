@@ -7,12 +7,13 @@
 <img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/dd6c00bd-942f-4cc6-b82d-f6ba45c1c5c1" alt="project-screenshot" width="180" height="350/">
 <br>
 <p>Login screen:</p>
-<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/4a19e7f9-15ca-4152-bb15-0e7cd6c87ae0" alt="project-screenshot" width="180" height="350/">
+<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/f78912e5-5a46-4fb4-a008-90a198e0278b" alt="project-screenshot" width="180" height="350/">
 <br>
 
 <p>Register screen:</p>
-<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/3ad209fc-a525-45b2-81f1-f13380749efe" alt="project-screenshot" width="180" height="350/">
+<img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/69f404d8-577f-4742-85e3-e87f52e58cee" alt="project-screenshot" width="180" height="350/">
 <br>
+
 <p>Empty Post List screen:</p>
 <img src="https://github.com/NoaBenGigi/MERN-Backend/assets/73596903/05686f0e-61fc-40de-a1f3-43dff302fd80" alt="project-screenshot" width="180" height="350/">
 <br>
